@@ -22,21 +22,25 @@ class _ResponseScreenState extends State<ResponseScreen> {
   }
 
   Future<void> fetchResponse() async {
-    final url = 'https://api.openai.com/v1/assistants'; // Endpoint for GPT text completions
-    final apiKey = 'sk-proj-cA2CPBJmsWlMDaaQHm5bT3BlbkFJEtF59Kl9lrQwzJDZC3Q6'; // Your API key
+    final apiKey = 'sk-proj-F1cSjfPC71ne7BiejbXkT3BlbkFJYyZTvATf3UvLbR1LJRGj'; // Your API key
 
     // Customize the prompt for food-related queries
     final prompt = 'Find ingredients and instructions for making ${widget.inputText}';
 
     try {
+      final url = Uri.parse('https://api.openai.com/v1/completions');
       final response = await http.post(
-        Uri.parse(url),
+        url,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $apiKey', // Include your API key in the headers
+          'OpenAI-Beta': 'v1', // Include the OpenAI-Beta header
         },
-        body: jsonEncode({ // Encode the body as JSON
+        body: jsonEncode({
+          'model': 'text-davinci-003', // Specify the model
           'prompt': prompt, // Send the customized prompt
+          'temperature': 0.7,
+          'max_tokens': 100,
         }),
       );
 
@@ -48,7 +52,8 @@ class _ResponseScreenState extends State<ResponseScreen> {
         // Print the response in the terminal
         print('Response: ${response.body}');
       } else {
-        throw Exception('Failed to fetch response');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to fetch response. Status code: ${response.statusCode}.');
       }
     } catch (e) {
       print('Error: $e');
